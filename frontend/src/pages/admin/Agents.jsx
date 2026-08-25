@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/AdminLayout";
 import {
   getAdminAgents,
-  updateAgentAvailability
+  updateAgentAvailability,
+  getAdminZones,
+  updateAgentZone
 } from "../../api/adminApi";
 
 function Agents() {
   const [agents, setAgents] = useState([]);
+  const [zones, setZones] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -17,19 +21,38 @@ function Agents() {
 
       const data = await getAdminAgents();
       setAgents(data);
+
     } catch (err) {
       console.error(err);
+
       setError(
         err.response?.data?.detail ||
         "Failed to load agents"
       );
+
     } finally {
       setLoading(false);
     }
   };
 
+  const loadZones = async () => {
+    try {
+      const data = await getAdminZones();
+      setZones(data);
+
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.detail ||
+        "Failed to load zones"
+      );
+    }
+  };
+
   useEffect(() => {
     loadAgents();
+    loadZones();
   }, []);
 
   const changeAvailability = async (
@@ -43,12 +66,37 @@ function Agents() {
       );
 
       await loadAgents();
+
     } catch (err) {
       console.error(err);
 
       setError(
         err.response?.data?.detail ||
         "Failed to update agent"
+      );
+    }
+  };
+
+  const changeZone = async (
+    agentId,
+    zoneId
+  ) => {
+    try {
+      setError("");
+
+      await updateAgentZone(
+        agentId,
+        Number(zoneId)
+      );
+
+      await loadAgents();
+
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.detail ||
+        "Failed to update agent zone"
       );
     }
   };
@@ -75,13 +123,11 @@ function Agents() {
 
       </div>
 
-
       {error && (
         <div className="admin-error">
           {error}
         </div>
       )}
-
 
       <div className="admin-section">
 
@@ -96,7 +142,6 @@ function Agents() {
           </div>
 
         </div>
-
 
         {loading ? (
 
@@ -146,18 +191,49 @@ function Agents() {
                 </div>
 
 
+                {/* =========================
+                    ZONE
+                ========================== */}
+
                 <div className="agent-zone">
 
                   <span>
                     Zone
                   </span>
 
-                  <strong>
-                    {agent.zone_id ?? "Not assigned"}
-                  </strong>
+                  <select
+                    value={agent.zone_id ?? ""}
+                    onChange={(e) =>
+                      changeZone(
+                        agent.id,
+                        e.target.value
+                      )
+                    }
+                  >
+
+                    <option value="">
+                      Select Zone
+                    </option>
+
+                    {zones.map((zone) => (
+
+                      <option
+                        key={zone.id}
+                        value={zone.id}
+                      >
+                        {zone.name}
+                      </option>
+
+                    ))}
+
+                  </select>
 
                 </div>
 
+
+                {/* =========================
+                    AVAILABILITY
+                ========================== */}
 
                 <div className="agent-availability">
 
@@ -180,6 +256,7 @@ function Agents() {
                       )
                     }
                   >
+
                     <option value="AVAILABLE">
                       Available
                     </option>
@@ -191,6 +268,7 @@ function Agents() {
                     <option value="OFFLINE">
                       Offline
                     </option>
+
                   </select>
 
                 </div>

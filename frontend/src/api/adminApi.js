@@ -42,6 +42,7 @@ export const assignAgent = async (
   return response.data;
 };
 
+
 // ================================
 // AGENTS
 // ================================
@@ -49,20 +50,6 @@ export const assignAgent = async (
 export const getAdminAgents = async () => {
   const response = await api.get(
     "/admin/agents"
-  );
-
-  return response.data;
-};
-
-// ================================
-// TRACKING
-// ================================
-
-export const getAdminOrderTracking = async (
-  orderId
-) => {
-  const response = await api.get(
-    `/admin/orders/${orderId}/tracking`
   );
 
   return response.data;
@@ -77,6 +64,51 @@ export const updateAgentAvailability = async (
     {
       availability_status
     }
+  );
+
+  return response.data;
+};
+
+
+// ================================
+// ZONES
+// ================================
+
+export const getAdminZones = async () => {
+  const response = await api.get(
+    "/admin/zones"
+  );
+
+  return response.data;
+};
+
+export const updateAgentZone = async (
+  agentId,
+  zoneId
+) => {
+  const response = await api.put(
+    `/admin/agents/${agentId}/zone`,
+    null,
+    {
+      params: {
+        zone_id: zoneId
+      }
+    }
+  );
+
+  return response.data;
+};
+
+
+// ================================
+// TRACKING
+// ================================
+
+export const getAdminOrderTracking = async (
+  orderId
+) => {
+  const response = await api.get(
+    `/admin/orders/${orderId}/tracking`
   );
 
   return response.data;
