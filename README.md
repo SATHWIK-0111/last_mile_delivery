@@ -141,32 +141,6 @@ Admin Assignment
                                    Assigned
 ```
 
----
-
-## 🔔 Notification Flow
-
-```mermaid
-sequenceDiagram
-    participant C as Customer
-    participant API as FastAPI
-    participant S as Business Service
-    participant N as Notification Service
-    participant DB as Database
-
-    C->>API: Customer / delivery action
-    API->>S: Execute business operation
-    S->>DB: Update order
-    S->>N: Create notification
-    N->>DB: Save PENDING notification
-    API-->>C: Operation response
-    C->>API: Fetch notifications
-    API-->>C: Notification list
-```
-
-Notifications are persisted as records and can be displayed in the frontend notification panel.
-
----
-
 ## 🛠️ Tech Stack
 
 ### Frontend
