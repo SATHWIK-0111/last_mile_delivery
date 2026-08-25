@@ -51,12 +51,26 @@ def register(
             detail="Email already registered"
         )
 
+    allowed_roles = {
+        "CUSTOMER",
+        "AGENT",
+        "ADMIN"
+    }
+
+    role = request.role.upper()
+
+    if role not in allowed_roles:
+        raise HTTPException(
+            status_code=400,
+            detail="Role must be CUSTOMER, AGENT or ADMIN"
+        )
+
     user = User(
         name=request.name,
         email=request.email,
         phone=request.phone,
         password_hash=hash_password(request.password),
-        role="CUSTOMER"
+        role=role
     )
 
     db.add(user)
