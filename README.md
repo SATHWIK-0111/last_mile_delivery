@@ -596,15 +596,6 @@ Database
 
 This keeps business rules such as assignment, pricing, tracking, notifications, and status transitions out of the UI layer and makes the backend easier to maintain and test.
 
----
-
-## 📄 License
-
-This project is intended as an academic / portfolio project.
-
-Add your preferred license here if the repository will be distributed publicly.
-
----
 
 ## ⭐ Project Summary
 
