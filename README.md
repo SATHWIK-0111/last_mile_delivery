@@ -493,6 +493,22 @@ http://localhost:5173
 ```
 
 ---
+## 🔐 Environment Variables
+
+The application uses environment variables for database configuration and authentication settings.
+
+Create a local environment file at:
+
+```text
+backend/.env
+
+Backend .env.example
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/last_mile_delivery
+SECRET_KEY=your-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+---
 
 ## 🧪 Testing the Application
 
