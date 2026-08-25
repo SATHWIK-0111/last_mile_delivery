@@ -51,18 +51,12 @@ def register(
             detail="Email already registered"
         )
 
-    allowed_roles = {
-        "CUSTOMER",
-        "AGENT",
-        "ADMIN"
-    }
-
     role = request.role.upper()
 
-    if role not in allowed_roles:
+    if role not in {"CUSTOMER", "AGENT"}:
         raise HTTPException(
             status_code=400,
-            detail="Role must be CUSTOMER, AGENT or ADMIN"
+            detail="Invalid registration role"
         )
 
     user = User(
