@@ -6,6 +6,33 @@ The application provides separate workflows for **Customers, Delivery Agents, an
 
 ---
 
+## 🌐 Live Application
+
+The Last Mile Delivery Tracker is deployed and available online.
+
+### Frontend
+
+🔗 **Live Application:**
+https://last-mile-delivery-frontend-xy8l.onrender.com
+
+### Backend API
+
+🔗 **Backend API:**
+https://last-mile-delivery-izrs.onrender.com
+
+### API Documentation
+
+🔗 **Swagger UI:**
+https://last-mile-delivery-izrs.onrender.com/docs
+
+🔗 **ReDoc:**
+https://last-mile-delivery-izrs.onrender.com/redoc
+
+> The frontend is deployed separately from the FastAPI backend.
+> The backend connects to a managed PostgreSQL database hosted on Render.
+
+---
+
 ## ✨ Highlights
 
 - 🔐 JWT-based authentication and role-based access
