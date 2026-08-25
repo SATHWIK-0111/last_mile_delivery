@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
 from app.schemas.order import OrderTrackingResponse
 from app.services.tracking_service import get_order_tracking
 from app.database import get_db
@@ -12,7 +13,10 @@ from app.services.status_service import (
     update_order_status,
     fail_order,
 )
-
+from app.services.notification_service import (
+    get_user_notifications,
+    mark_notification_as_read,
+)
 
 router = APIRouter(
     prefix="/agent",
@@ -59,9 +63,7 @@ def update_availability(
 
     agent = (
         db.query(Agent)
-        .filter(
-            Agent.user_id == current_user.id
-        )
+        .filter(Agent.user_id == current_user.id)
         .first()
     )
 
@@ -83,14 +85,134 @@ def update_availability(
     }
 
 
+@router.get("/me")
+def get_agent_profile(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "AGENT":
+        raise HTTPException(
+            status_code=403,
+            detail="Only agents can access this profile"
+        )
+
+    agent = (
+        db.query(Agent)
+        .filter(Agent.user_id == current_user.id)
+        .first()
+    )
+
+    if not agent:
+        raise HTTPException(
+            status_code=404,
+            detail="Agent profile not found"
+        )
+
+    return {
+        "agent_id": agent.id,
+        "user_id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+        "availability_status": agent.availability_status,
+        "zone_id": agent.zone_id
+    }
+
+
+# ==========================================
+# NOTIFICATIONS
+# ==========================================
+
+@router.get("/notifications")
+def get_agent_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "AGENT":
+        raise HTTPException(
+            status_code=403,
+            detail="Only agents can access notifications"
+        )
+
+    return get_user_notifications(
+        recipient_id=current_user.id,
+        db=db
+    )
+
+
+@router.patch("/notifications/{notification_id}/read")
+def mark_agent_notification_read(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "AGENT":
+        raise HTTPException(
+            status_code=403,
+            detail="Only agents can update notifications"
+        )
+
+    notification = mark_notification_as_read(
+        notification_id=notification_id,
+        recipient_id=current_user.id,
+        db=db
+    )
+
+    if not notification:
+        raise HTTPException(
+            status_code=404,
+            detail="Notification not found"
+        )
+
+    return {
+        "message": "Notification marked as read",
+        "notification_id": notification.id,
+        "status": notification.status
+    }
+
+
+@router.get("/orders")
+def get_agent_orders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "AGENT":
+        raise HTTPException(
+            status_code=403,
+            detail="Only agents can view agent orders"
+        )
+
+    agent = (
+        db.query(Agent)
+        .filter(Agent.user_id == current_user.id)
+        .first()
+    )
+
+    if not agent:
+        raise HTTPException(
+            status_code=404,
+            detail="Agent profile not found"
+        )
+
+    return (
+        db.query(Order)
+        .filter(Order.agent_id == agent.id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+
+
 # ==========================================
 # ORDER STATUS
 # ==========================================
 
 class OrderStatusUpdate(BaseModel):
     status: str
+
+
 class FailedDeliveryRequest(BaseModel):
     reason: str
+
+
 @router.get(
     "/orders/{order_id}/tracking",
     response_model=OrderTrackingResponse
@@ -108,9 +230,7 @@ def get_agent_order_tracking(
 
     agent = (
         db.query(Agent)
-        .filter(
-            Agent.user_id == current_user.id
-        )
+        .filter(Agent.user_id == current_user.id)
         .first()
     )
 
@@ -120,10 +240,7 @@ def get_agent_order_tracking(
             detail="Agent profile not found"
         )
 
-    order = db.get(
-        Order,
-        order_id
-    )
+    order = db.get(Order, order_id)
 
     if not order:
         raise HTTPException(
@@ -141,6 +258,8 @@ def get_agent_order_tracking(
         order_id=order_id,
         db=db
     )
+
+
 @router.patch("/orders/{order_id}/status")
 def update_agent_order_status(
     order_id: int,
@@ -164,9 +283,7 @@ def update_agent_order_status(
 
     agent = (
         db.query(Agent)
-        .filter(
-            Agent.user_id == current_user.id
-        )
+        .filter(Agent.user_id == current_user.id)
         .first()
     )
 
@@ -180,10 +297,7 @@ def update_agent_order_status(
     # 3. Get order
     # -----------------------------------------
 
-    order = db.get(
-        Order,
-        order_id
-    )
+    order = db.get(Order, order_id)
 
     if not order:
         raise HTTPException(
@@ -204,6 +318,7 @@ def update_agent_order_status(
     # -----------------------------------------
     # 5. Update status through shared service
     # -----------------------------------------
+
     return update_order_status(
         order_id=order_id,
         new_status=request.status,
@@ -211,16 +326,15 @@ def update_agent_order_status(
         actor_role="AGENT",
         db=db
     )
-@router.patch(
-    "/orders/{order_id}/failed"
-)
+
+
+@router.patch("/orders/{order_id}/failed")
 def mark_order_failed(
     order_id: int,
     request: FailedDeliveryRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
     # -----------------------------------------
     # 1. Verify agent
     # -----------------------------------------
@@ -237,9 +351,7 @@ def mark_order_failed(
 
     agent = (
         db.query(Agent)
-        .filter(
-            Agent.user_id == current_user.id
-        )
+        .filter(Agent.user_id == current_user.id)
         .first()
     )
 
@@ -253,10 +365,7 @@ def mark_order_failed(
     # 3. Get order
     # -----------------------------------------
 
-    order = db.get(
-        Order,
-        order_id
-    )
+    order = db.get(Order, order_id)
 
     if not order:
         raise HTTPException(

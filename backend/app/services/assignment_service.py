@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.agent import Agent
 from app.models.order import Order
 from app.services.tracking_service import add_event
+from app.services.notification_service import create_notification
 
 
 def calculate_distance(
@@ -154,8 +155,6 @@ def assign_agent(
         db=db
     )
 
-    
-
     # -----------------------------------------
     # 8. Save
     # -----------------------------------------
@@ -189,6 +188,7 @@ def auto_assign_agent(
     - order becomes ASSIGNED
     - agent becomes BUSY
     - tracking history is created
+    - agent is notified
     """
 
     # -----------------------------------------
@@ -294,6 +294,18 @@ def auto_assign_agent(
     nearest_agent.availability_status = "BUSY"
 
     # -----------------------------------------
+    # 7.1 Notify assigned agent
+    # -----------------------------------------
+
+    create_notification(
+        order_id=order.id,
+        recipient_id=nearest_agent.user_id,
+        channel="IN_APP",
+        event_type="ORDER_ASSIGNED",
+        db=db
+    )
+
+    # -----------------------------------------
     # 8. Tracking history
     # -----------------------------------------
 
@@ -310,8 +322,6 @@ def auto_assign_agent(
         db=db
     )
 
-    
-
     # -----------------------------------------
     # 9. Save
     # -----------------------------------------
@@ -320,6 +330,7 @@ def auto_assign_agent(
     db.refresh(order)
 
     return order
+
 
 def reassign_order(
     *,
@@ -429,6 +440,18 @@ def reassign_order(
     order.current_status = "ASSIGNED"
 
     nearest_agent.availability_status = "BUSY"
+
+    # -----------------------------------------
+    # 6.1 Notify reassigned agent
+    # -----------------------------------------
+
+    create_notification(
+        order_id=order.id,
+        recipient_id=nearest_agent.user_id,
+        channel="IN_APP",
+        event_type="ORDER_REASSIGNED",
+        db=db
+    )
 
     # -----------------------------------------
     # 7. Tracking event

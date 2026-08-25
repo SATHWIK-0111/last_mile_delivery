@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api/authApi";
 
 function Login() {
@@ -104,6 +104,13 @@ function Login() {
           </button>
 
         </form>
+
+        <p className="auth-footer">
+          Don't have an account?{" "}
+          <Link to="/register">
+            Register
+          </Link>
+        </p>
 
       </div>
 

@@ -3,29 +3,50 @@ import {
   Routes,
   Route
 } from "react-router-dom";
-
+import Agents from "./pages/admin/Agents";
 import Login from "./pages/Login";
-import CustomerDashboard from "./pages/customer/CustomerDashboard";
-import OrderTracking from "./pages/customer/OrderTracking";
-import CreateOrder from "./pages/customer/CreateOrder";
+import Register from "./pages/Register";  
+import CustomerDashboard
+  from "./pages/customer/CustomerDashboard";
 
-function AgentDashboard() {
-  return <h1>Agent Dashboard</h1>;
-}
+import OrderTracking
+  from "./pages/customer/OrderTracking";
 
-function AdminDashboard() {
-  return <h1>Admin Dashboard</h1>;
-}
+import CreateOrder
+  from "./pages/customer/CreateOrder";
+
+import AgentDashboard
+  from "./pages/agent/AgentDashboard";
+
+import AgentOrderTracking
+  from "./pages/agent/AgentOrderTracking";
+
+import AdminDashboard
+  from "./pages/admin/AdminDashboard";
+
+import Orders
+  from "./pages/admin/Orders";
+import Assignment
+  from "./pages/admin/Assignment";
 
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
+
+        {/* Login */}
 
         <Route
           path="/"
           element={<Login />}
         />
+        <Route
+  path="/register"
+  element={<Register />}
+/>
+
+        {/* Customer */}
 
         <Route
           path="/customer"
@@ -33,13 +54,8 @@ function App() {
         />
 
         <Route
-          path="/agent"
-          element={<AgentDashboard />}
-        />
-
-        <Route
-          path="/admin"
-          element={<AdminDashboard />}
+          path="/customer/create-order"
+          element={<CreateOrder />}
         />
 
         <Route
@@ -47,14 +63,46 @@ function App() {
           element={<OrderTracking />}
         />
 
+
+        {/* Agent */}
+
         <Route
-  path="/customer/create-order"
-  element={<CreateOrder />}
+          path="/agent"
+          element={<AgentDashboard />}
+        />
+
+        <Route
+          path="/agent/orders/:orderId/tracking"
+          element={<AgentOrderTracking />}
+        />
+
+
+        {/* Admin */}
+
+        <Route
+          path="/admin"
+          element={<AdminDashboard />}
+        />
+
+        <Route
+  path="/admin/orders"
+  element={<Orders />}
 />
 
+<Route
+  path="/admin/agents"
+  element={<Agents />}
+/>
+
+<Route
+  path="/admin/assignment"
+  element={<Assignment />}
+/>
       </Routes>
+
     </BrowserRouter>
   );
 }
+
 
 export default App;
