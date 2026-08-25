@@ -55,45 +55,6 @@ flowchart LR
     MIG[Alembic Migrations] --> DB
 ```
 
-### Backend service flow
-
-```mermaid
-flowchart TD
-    REQ[HTTP Request] --> ROUTE[FastAPI Route]
-    ROUTE --> AUTHZ[Authentication / Authorization]
-    AUTHZ --> SERVICE[Business Service]
-    SERVICE --> MODEL[SQLAlchemy Models]
-    MODEL --> DB[(Database)]
-
-    SERVICE --> TRACK[Tracking History]
-    SERVICE --> NOTIFICATION[Notification Record]
-```
-
----
-
-## 🔄 Delivery Lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> CREATED
-    CREATED --> ASSIGNED
-    ASSIGNED --> PICKED_UP
-    PICKED_UP --> IN_TRANSIT
-    IN_TRANSIT --> OUT_FOR_DELIVERY
-
-    OUT_FOR_DELIVERY --> DELIVERED
-    OUT_FOR_DELIVERY --> FAILED
-
-    FAILED --> RESCHEDULED
-    RESCHEDULED --> ASSIGNED
-
-    DELIVERED --> [*]
-```
-
-The backend enforces valid status transitions rather than allowing arbitrary status changes.
-
----
-
 ## 👥 User Roles
 
 ### Customer
