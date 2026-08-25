@@ -383,7 +383,7 @@ The customer dashboard displays unread notifications through the notification be
 
 ![Login](docs/screenshots/login.png)
 
-##Register
+## Register
 
 ![Register](docs/screenshots/register.png)
 
@@ -493,6 +493,7 @@ http://localhost:5173
 ```
 
 ---
+
 ## 🔐 Environment Variables
 
 The application uses environment variables for database configuration and authentication settings.
@@ -501,12 +502,16 @@ Create a local environment file at:
 
 ```text
 backend/.env
+```
 
-Backend .env.example
+**Backend `.env.example`**
+
+```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/last_mile_delivery
 SECRET_KEY=your-secret-key-here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
 
 ---
 
@@ -611,7 +616,6 @@ Database
 ```
 
 This keeps business rules such as assignment, pricing, tracking, notifications, and status transitions out of the UI layer and makes the backend easier to maintain and test.
-
 
 ## ⭐ Project Summary
 
