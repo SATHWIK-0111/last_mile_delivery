@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-
+from app.models.agent import Agent
 from app.config import settings
 from app.database import get_db
 from app.models.user import User
@@ -38,7 +38,6 @@ def register(
     request: RegisterRequest,
     db: Session = Depends(get_db)
 ):
-
     existing_user = (
         db.query(User)
         .filter(User.email == request.email)
@@ -68,6 +67,15 @@ def register(
     )
 
     db.add(user)
+    db.flush()
+
+    if role == "AGENT":
+        agent = Agent(
+            user_id=user.id,
+            availability_status="AVAILABLE"
+        )
+        db.add(agent)
+
     db.commit()
     db.refresh(user)
 
@@ -82,7 +90,6 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-
     user = (
         db.query(User)
         .filter(User.email == form_data.username)
