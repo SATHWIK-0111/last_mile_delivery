@@ -714,3 +714,45 @@ def get_admin_order(
         )
 
     return order
+
+@router.patch("/agents/{agent_id}/zone")
+def assign_agent_zone(
+    agent_id: int,
+    zone_id: int,
+    db: Session = Depends(get_db)
+):
+    agent = (
+        db.query(Agent)
+        .filter(Agent.id == agent_id)
+        .first()
+    )
+
+    if not agent:
+        raise HTTPException(
+            status_code=404,
+            detail="Agent not found"
+        )
+
+    zone = (
+        db.query(Zone)
+        .filter(Zone.id == zone_id)
+        .first()
+    )
+
+    if not zone:
+        raise HTTPException(
+            status_code=404,
+            detail="Zone not found"
+        )
+
+    agent.zone_id = zone_id
+
+    db.commit()
+    db.refresh(agent)
+
+    return {
+        "message": "Agent zone updated successfully",
+        "agent_id": agent.id,
+        "zone_id": agent.zone_id,
+        "zone": zone.name
+    }
