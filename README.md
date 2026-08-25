@@ -20,6 +20,10 @@ https://last-mile-delivery-frontend-xy8l.onrender.com
 🔗 **Backend API:**
 https://last-mile-delivery-izrs.onrender.com
 
+### Admin Credentials
+Email: admin@lastmile.com
+Password: Admin@123
+
 ### API Documentation
 
 🔗 **Swagger UI:**
